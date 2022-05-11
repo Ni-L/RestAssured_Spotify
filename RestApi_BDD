@@ -1,0 +1,96 @@
+package Test;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import org.hamcrest.Matchers;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class BY_BDD_RestApi {
+
+
+    String userId;
+    int playlistCount;
+    //String token = "Bearer BQCPoach9nPDHX7R910izFUxrauucbJ1F_xQ9n1KKPRg8Y36I8BjCSTJlL-UtiazCTUsIIBg6KDHVgu-uPTGf-xl0-ZD2XzCFb0B_z8jU9ntcdDMckXTVTLAUncQwAx9iI7PIKk7G_LPJQIINga7fwiiCo9Ksz8JtxYk20kKJHVbSjj9AtQ4w53vwk9-NvGDROl1tO2b2tfO8OwbyvHjW_xHybot91LtBl4FfZTFWdzGVx5qT2RFMrqhhcjZmleuLlh_A0C3HNQyix5qfWCKrwumKwUq_zqlk0BdTQ";
+    String token ="Bearer BQCQjIdI-SGIPcwiOMy6BkKJRp13ZvMLa9RGQ4VkFegam_T2CEpvJQjylluS7Metz8bgtg8GR3AdYxzLc2C2lds5Dqn2RjaxppP82u2_B6abwEoMQp9ODjkrV2ufpTzG8JAvjaLvS5csnILbPHyP87GsLNDLbgjSXglu7y2xaxOwR1gvTOkYqD4Jg1MmRpVEUaDrWIsydNEXAgI44utxCHGevS_t-nzdGLZ86WREuC_g2lbY9ZQusKIS5sjIqHnSPhEWKmutwWMg8UBHWzTjajpWPBfH1NH1kVFru589";
+
+
+
+    //BDD Approach to test Rest Apis
+    @Test
+    public void TestGetUserProfile_ShouldReturn_StatusCode200() {
+        Response response = RestAssured.given().contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .header("Authorization",token)
+                .when()
+                //.log().all()
+                .get("https://api.spotify.com/v1/me");
+
+        response.then()
+                .assertThat()
+                .statusCode(200);
+
+        int statusCode = response.getStatusCode();
+        System.out.println("status code:" +statusCode);
+
+    }
+
+    @Test
+    public void Verifying_the_user_id() {
+        Response response1 = RestAssured.given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", token)
+                .when()
+                .get("https://api.spotify.com/v1/me")
+                .then()
+                .extract()
+                .response();
+
+        userId = response1.path("id");
+        System.out.println(userId);
+        response1.then().assertThat().body("id", Matchers.equalTo(userId));
+        //Assert.assertEquals(statusCode, 200);
+    }
+
+    @Test
+    public void TestAddItemsToPlaylist_ShouldReturn_StatusCode201() {
+        Response response = RestAssured.given().contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .header("Authorization",token)
+                .queryParam("uris","spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M")
+                .when()
+                .post("https://api.spotify.com/v1/playlists/36H9cOCAgBCYF5k7U7Feod/tracks");
+        response.then()
+                .assertThat()
+                .statusCode(201);
+
+        int statusCode = response.getStatusCode();
+        System.out.println("status cod:" +statusCode);
+        //Assert.assertEquals(statusCode, 201);
+    }
+
+    @Test
+    public void TestCreatePlaylist_ShouldReturn_StatusCode201() {
+        Response response = RestAssured.given().contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .header("Authorization",token)
+                .body("{\r\n"
+                        + "  \"name\": \"New Playlist11\",\r\n"
+                        + "  \"description\": \"New playlist description\",\r\n"
+                        + "  \"public\": false\r\n"
+                        + "}")
+                .when()
+                .post("https://api.spotify.com/v1/users/31gjdle2z7x5pland6zzecdjruli/playlists");
+        response.then()
+                .assertThat()
+                .statusCode(201);
+
+        int statusCode = response.getStatusCode();
+        System.out.println("status cod:" +statusCode);
+        Assert.assertEquals(statusCode, 201);
+    }
+
+}
