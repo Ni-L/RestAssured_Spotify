@@ -1,0 +1,47 @@
+import io.restassured.RestAssured;
+import io.restassured.http.Method;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
+
+public class TestRestAssured {
+    public String token = "";
+    @BeforeTest
+    public void setUp() {
+      //  token = "Bearer BQAwdfcWZjFNrYM-GwNA_jIukIV76uQRF6hFN4f4OVS8WPEUwogrI1nHORY7iqv9l3m9Am3ZOHdpan2B1B1Uo-9wapE3kAEtY_SdIOVYJTnUGm6f3JjC6kVX5RkAEMp83whQRxNazlHkagazIWdGqcqiEgP_e1_-PvqKx3UijjBs9TnfsOTqeABSqNO7pqu0wVntfKPhpZBTbxed2qVY59QxY091UJWDlGJxUqUGvj6O9xzRqJU2OiQRzmPCeaLuUCNW4bGl5exlv55OKsnElPi7QHa3NwplTd9I5ACQ";
+     token ="Bearer BQCQjIdI-SGIPcwiOMy6BkKJRp13ZvMLa9RGQ4VkFegam_T2CEpvJQjylluS7Metz8bgtg8GR3AdYxzLc2C2lds5Dqn2RjaxppP82u2_B6abwEoMQp9ODjkrV2ufpTzG8JAvjaLvS5csnILbPHyP87GsLNDLbgjSXglu7y2xaxOwR1gvTOkYqD4Jg1MmRpVEUaDrWIsydNEXAgI44utxCHGevS_t-nzdGLZ86WREuC_g2lbY9ZQusKIS5sjIqHnSPhEWKmutwWMg8UBHWzTjajpWPBfH1NH1kVFru589";
+        //   token= "Bearer BQDruyxsbDyi5DA3z6OqDxlWrMzbm9C7qL_JQ--MQ1hM5AfxaKTdIlYUE3-reFlqhPv8F-9SFDQsIHXAW-3DGIzkJx-fvXWb6DHmnP0T7iKH40d0U1bDLKDP_1aZhUwHGeSMLQ4hPvXE6P-2_BG74k4NQBcZFetXxHxqRjVLQuvhWdcJay-PuaQYG5f8Aaa090EurC_V__w80x7uEOkY6lskW_ltv33qkUTo0QZH6tG2R0N52E50LInpzz79FE2u9OxUcn_AhUamSxv5cvjmIgjumdIJOPNWqmRcQwph";
+    }
+
+    @Test
+    public void Testget() {
+        RequestSpecification httpRequest =given();
+        httpRequest.contentType(JSON);
+        httpRequest.header("Authorization",token);
+        Response response = httpRequest.request(Method.GET,"https://api.spotify.com/v1/me");
+
+        response.prettyPrint();
+        int statuscode = response.statusCode();
+        System.out.println("status code" +statuscode);
+
+
+    }
+    @Test
+    public void addTracksToPlaylist_StatusCodeReturn201() {
+        RequestSpecification httpRequest = RestAssured.given();
+        httpRequest.queryParam("uris","spotify:track:6U6Lieem2VpReKCxyvDeRs","spotify:track:0Oe49j06Bjrxs8PltuVeaW");
+        httpRequest.header("Authorization", token);
+
+        Response response = httpRequest.request(Method.POST,"https://api.spotify.com/v1/playlists/36H9cOCAgBCYF5k7U7Feod/tracks");
+        response.prettyPrint();
+        int statusCode = response.getStatusCode();
+        Assert.assertEquals(statusCode, 201);
+    }
+
+
+}
