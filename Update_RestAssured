@@ -1,0 +1,54 @@
+package Test;
+
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import static io.restassured.RestAssured.given;
+
+public class Restassuredbdd {
+
+
+    public String token = "";
+    public static String userID;
+    public static String playlistId;
+
+    @BeforeTest
+    public void setUp() {
+        token= "Bearer BQDruyxsbDyi5DA3z6OqDxlWrMzbm9C7qL_JQ--MQ1hM5AfxaKTdIlYUE3-reFlqhPv8F-9SFDQsIHXAW-3DGIzkJx-fvXWb6DHmnP0T7iKH40d0U1bDLKDP_1aZhUwHGeSMLQ4hPvXE6P-2_BG74k4NQBcZFetXxHxqRjVLQuvhWdcJay-PuaQYG5f8Aaa090EurC_V__w80x7uEOkY6lskW_ltv33qkUTo0QZH6tG2R0N52E50LInpzz79FE2u9OxUcn_AhUamSxv5cvjmIgjumdIJOPNWqmRcQwph";
+    }
+
+    @Test
+    public void get_Current_UserProfile() {
+        Response response = given().contentType(ContentType.JSON)
+                .accept(ContentType.JSON).header("Authorization", token)
+                .when()
+                .get("https://api.spotify.com/v1/me");
+        response.prettyPrint();
+
+        userID = response.path("id");
+
+    }
+
+    @Test
+    public void get_UserProfile() {
+        Response response = (Response) given().contentType(ContentType.JSON)
+                .accept(ContentType.JSON).header("Authorization", token)
+                .when()
+                .get("https://api.spotify.com/v1/users/" + userID);
+        response.prettyPrint();
+    }
+
+    @Test
+    public void get_CurrentUsersPlaylist() {
+        Response response = (Response) given().contentType(ContentType.JSON)
+                .accept(ContentType.JSON).header("Authorization", token)
+                .when()
+                .get("https://api.spotify.com/v1/me/playlists");
+
+        playlistId = response.path("uri");
+        System.out.println("---" + playlistId);
+
+    }
+}
