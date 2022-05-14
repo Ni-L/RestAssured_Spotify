@@ -1,0 +1,134 @@
+import io.restassured.RestAssured;
+import io.restassured.http.Method;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import org.json.simple.JSONObject;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
+
+public class TestRestAssured {
+    public String token = "";
+
+    @BeforeTest
+    public void setUp() {
+        token = "Bearer BQA_HK4oLVn6HVI0hni4HCa2DIP9SIQ8V4CZmmCCHHt5xFuCAJCs1anzWCwZH_4-8bjlQ9I7spK2qUNjCxOX2AigS6za-Ofc8OQYZJnkwKFWVL5LUCIkeKqJ6yPb1oPQy5QB9DMrHhZ1FIyCcmz3np8CAf9Hy5ihMoIHsZBeLCnzAS8gj-2cDlw7RS4pol-7Ofc5Y9wXT6DlQ-0Dmb2mGJW4t73skFHBdBBvMVT0o8VX1VVIQ7pr79WN8BcF0z2Eho3s7Ado6SVB01XlpqXe9PyV268YUleNJqxxjfXT";
+
+    }
+
+    @Test
+    public void test_Getting_user() {
+        RequestSpecification httpRequest =given();
+        httpRequest.contentType(JSON);
+        httpRequest.header("Authorization",token);
+        Response response = httpRequest.request(Method.GET,"https://api.spotify.com/v1/me");
+
+        response.prettyPrint();
+        int statuscode = response.statusCode();
+        System.out.println("status code" +statuscode);
+        Assert.assertEquals(statuscode,200);
+        System.out.println("Get User First Test Pass ");
+
+
+    }
+    @Test
+    public void getUsers_By_UserID()
+    {
+        RequestSpecification httpRequest = given();
+        httpRequest.contentType(JSON);
+        httpRequest.header("Authorization",token);
+        Response response = httpRequest.request(Method.GET,"https://api.spotify.com/v1/users/s607o65dai5ertgc52yzurtpo");
+        response.prettyPrint();
+        int statuscode = response.statusCode();
+        Assert.assertEquals(statuscode,200);
+        System.out.println("Get User Second Test Pass ");
+
+    }
+    @Test
+    public void testCreatePlaylist_StatusCodeReturn201() {
+        RequestSpecification httpRequest = RestAssured.given();
+
+        JSONObject requestParam = new JSONObject();
+        //requestParam.put("name", "With Java Spotify1");
+        //requestParam.put("description", "Java Playlist description");
+        //requestParam.put("public", "false");
+        httpRequest.header("Authorization", token);
+        httpRequest.body("{\r\n"
+                + "  \"name\": \"saandu\",\r\n"
+                + "  \"description\": \"New playlist description\",\r\n"
+                + "  \"public\": false\r\n"
+                + "}");
+        //httpRequest.body(requestParam.toString());
+        Response response = httpRequest.request(Method.POST,"https://api.spotify.com/v1/users/s607o65dai5ertgc52yzurtpo/playlists");
+        String responseBody = response.getBody().asString();
+        System.out.println(responseBody);
+        response.prettyPrint();
+        //int statusCode=( Assert.assertEquals(statusCode, 200));
+        int statuscode = response.statusCode();
+        Assert.assertEquals(statuscode,201);
+
+    }
+
+
+
+    @Test
+    public void addTracksToPlaylist_StatusCodeReturn201() {
+        RequestSpecification httpRequest = RestAssured.given();
+        httpRequest.queryParam("uris","spotify:track:6U6Lieem2VpReKCxyvDeRs","spotify:track:0Oe49j06Bjrxs8PltuVeaW");
+        httpRequest.header("Authorization", token);
+
+        Response response = httpRequest.request(Method.POST,"https://api.spotify.com/v1/playlists/7ld7q89dE5etlqq60XTiVy/tracks");
+        response.prettyPrint();
+        int statusCode = response.getStatusCode();
+        Assert.assertEquals(statusCode, 201);
+    }
+
+    @SuppressWarnings("unchecked")
+
+    @Test
+    public void testGetCurrentUserPlaylist_ShouldMatchWith_PlaylistName() {
+        RequestSpecification httpRequest = RestAssured.given();
+        httpRequest.header("Authorization", token);
+
+        Response response = httpRequest.request(Method.GET,"https://api.spotify.com/v1/me/playlists");
+        JsonPath jsonPathObj = response.jsonPath();
+
+        Object playlistCount = response.path("total");
+
+        System.out.println("count" + playlistCount);
+
+        String plyName = jsonPathObj.get("items[1].name");
+        System.out.println("playlist name:" +plyName);
+        response.prettyPrint();
+        Assert.assertEquals(plyName, "sandu");
+    }
+
+    @Test
+    public void Test_Put_UpdatePlaylist_Name() {
+        RequestSpecification httpRequest = RestAssured.given();
+        httpRequest.header("Authorization",token);
+        Response response = httpRequest.request(Method.PUT,"https://api.spotify.com/v1/playlists/6RlrCsOTZn8cwfPXUxgiCK");
+        JSONObject requestParam = new JSONObject();
+        httpRequest .body("{\n" +
+                "  \"name\": \"Mau\",\n" +
+                "  \"description\": \"Updated playlist description\",\n" +
+                "  \"public\": false\n" +
+                "}");
+        String responseBody = response.getBody().asString();
+        System.out.println(responseBody);
+        response.prettyPrint();
+        //int statusCode=( Assert.assertEquals(statusCode, 200));
+        int statuscode = response.statusCode();
+        Assert.assertEquals(statuscode,201);
+
+
+    }
+}
+
+
+
+
